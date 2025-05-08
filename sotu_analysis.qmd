@@ -6,6 +6,10 @@ editor: visual
 
 # 1.
 
+```{r}
+sotu <- read.csv("SOTU_WithText.csv")
+```
+
 Select a corpus to study. Do some background reading on the corpus and decide on a research question that you can answer with the data that you have. What is your research question? What is the significance of your research question? Do a quick search -- has anyone studied this question before? (Please include at least 2 references) \[2-3 paragraphs\]
 
 # 2.
