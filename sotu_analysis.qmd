@@ -9,9 +9,17 @@ editor: visual
 ```{r}
 sotu <- read.csv("SOTU_WithText.csv")
 
-# we should filter the data
-# Only keep a subset of Democratic and Republican parties
-# only from the past century (1900 to present)
+# filter from 1900s on 
+filtered_sotu <- filter(sotu, year >= 1900)
+
+set.seed(123123)
+sample_n(filtered_sotu, 2)
+
+```
+
+```{r}
+set.seed(12345)
+sample_n(filtered_sotu, 2)
 ```
 
 Select a corpus to study. Do some background reading on the corpus and decide on a research question that you can answer with the data that you have. What is your research question? What is the significance of your research question? Do a quick search -- has anyone studied this question before? (Please include at least 2 references) \[2-3 paragraphs\]
@@ -22,7 +30,9 @@ Complete the steps below:
 
 Step 1: Hand Coding
 
-    - Take random sample of at least 50, code whether the document is for, against, or neutral.
+```         
+- Take random sample of at least 50, code whether the document is for, against, or neutral.
+```
 
 -   Define a categorization that would help you answer your research question. \[1-2 paragraphs\]
 
@@ -39,8 +49,7 @@ Step 1: Hand Coding
 -   Create a detailed codebook. \[Include codebook\]
 
     -   We need to figure out what metrics we are categorizing on:
-      - sentiment words
-      
+    -   sentiment words
 
 -   Select a random sample from your data of at least 50 documents for hand coding. Have at least two people code the data, read the data back into R, and assess inter-coder reliability. \[1-2 paragraphs plus metrics on intercoder reliability\]
 
