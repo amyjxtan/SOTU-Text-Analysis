@@ -4,6 +4,10 @@ format: html
 editor: visual
 ---
 
+```{r}
+library(dplyr) 
+```
+
 # 1.
 
 ```{r}
