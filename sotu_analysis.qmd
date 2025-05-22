@@ -37,12 +37,12 @@ Select a corpus to study. Do some background reading on the corpus and decide on
     Additionally, we created a code book with these definitions to further clarify these categories. The code book also includes some keywords and example quotes from SOTU speeches for reference.
 
 | **Sentiment** | **Definition** | **Keywords** | **Example** |
-|-----------------|-----------------|------------------|---------------------|
+|------------------|------------------|------------------|--------------------|
 | Approval | SOTU speech expressing satisfaction or belief in the value of a public health program or initiative. This can also take the form of having disapproval for private health initiatives (i.e. lack of support of the privatization of health care programs) | "support", "advocate", "commitment", "achieve", "improve", "success", "priority", "benefit", "impact", "significant progress", "solution", "progress", "invest", "improved health", "efforts have paid off" -- note: negation in conjunction with these words would be associated with disapproval | "Our Government has a responsibility to provide health care for the poor and the elderly, and we are meeting that responsibility. For all Americans, we must confront the rising cost of care, strengthen the doctor-patient relationship, and help people afford the insurance coverage they need." |
 | Neutral | SOTU speech that does not explicitly express support or disapproval of a public health program or initiative. This also includes speeches that do not explicitly/specifically reference public or private healthcare, or healthcare at all. | "address", "discuss", "work", "plan", "explore", "next steps", "looking forward", "consider" | "I see a new America as we celebrate our 200th anniversary 6 years from now. I see an America in which we have abolished hunger, provided the means for every family in the Nation to obtain a minimum income, made enormous progress in providing better housing, faster transportation, improved health, and superior education." |
 | Disapproval | SOTU speech expressing dissatisfaction or highlighting shortcomings, failures, or barriers related to a public health initiative. This can also take the form of having approval for private health initiatives (i.e. support for the privatization of health care programs) | "fail", "struggle", "insufficient", "lack", "decline", "not working", "unmet", "challenges", "shortcomings", "neglect", "ineffective", "difficult", "hurdle", "cut", "undermining", "deficient", etc. -- note: negation in conjunction with these words would be associated with approval | "In all we do, we must remember that the best health care decisions are not made by government and insurance companies but by patients and their doctors." |
 
-After creating this code book, we selected a random sample of 50 documents from the SOTU corpus for hand coding. Two members of the group independently coded the 50 speeches according to the handbook and their interpretation of the text. The hand coded data was read back into R, and we computed confusion matrices and Krippendorff's alpha for all three categories to assess intercoder reliability.
+After creating this code book, we selected a random sample of 50 documents from the SOTU corpus for hand coding. Out of the 50 speeches, 29 of these speeches were from Republicans, and the speeches ranged from 1905 to 2013. Using this sample, two members of the group independently coded the 50 speeches according to the handbook and their interpretation of the text. The hand coded data was read back into R, and we computed confusion matrices and Krippendorff's alpha for all three categories to assess intercoder reliability.
 
 -   
 
@@ -50,6 +50,9 @@ After creating this code book, we selected a random sample of 50 documents from 
     # random sample of 50
     set.seed(54321)
     random_50 <- sample_n(filtered_sotu, 50)
+
+    # get num of Republican speeches in the sample
+        rep <- filter(random_50, party == 'Republican')
 
     # read handcoded results back into R
     handcode <- read.csv('handcoded.csv')
@@ -77,7 +80,7 @@ After creating this code book, we selected a random sample of 50 documents from 
 
     ```
 
-    We had the highest intercoder reliability in regards to the Disapproval category. Out of the 50 documents, our coders only conflicted on 1, with a Krippendorff's alpha or 0.912. Our coders agreed that 6 were Disapproval and 43 were not Disapproval. The second highest intercoder reliability was with the Neutral category. Out of the 50 documents, our coders conflicted on 5 documents. They agreed that 24 were Neutral, and 21 were not Neutral. The Krippendorff's alpha was 0.801.
+    We had the highest intercoder reliability in regards to the Disapproval category, with a Krippendorff's alpha of 0.912. The second highest intercoder reliability was with the Neutral category, with a Krippendorff's alpha was 0.801. Our lowest category was the Approval category, which had a Krippendorff's alpha of 0.735. From these metrics, it seems that our codebook captures and defines Disapproval of public health care relatively well; however, there is ambiguity in the codebook with regards to Neutral and Approval sentiments.
 
 -   Where did you codes conflict? \[1 paragraph\]
 
