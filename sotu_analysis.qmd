@@ -80,7 +80,8 @@ After creating this code book, we selected a random sample of 50 documents from 
 
     ```
 
-    We had the highest intercoder reliability in regards to the Disapproval category, with a Krippendorff's alpha of 0.912. The second highest intercoder reliability was with the Neutral category, with a Krippendorff's alpha was 0.801. Our lowest category was the Approval category, which had a Krippendorff's alpha of 0.735. From these metrics, it seems that our codebook captures and defines Disapproval of public health care relatively well; however, there is ambiguity in the codebook with regards to Neutral and Approval sentiments.
+
+We had the highest intercoder reliability in regards to the Disapproval category. Out of the 50 documents, our coders only conflicted on 1, with a Krippendorff's alpha or 0.912. Our coders agreed that 6 were Disapproval and 43 were not Disapproval. The second highest intercoder reliability was with the Neutral category. Out of the 50 documents, our coders conflicted on 5 documents. They agreed that 24 were Neutral, and 21 were not Neutral. The Krippendorff's alpha was 0.801.
 
 -   Where did you codes conflict? \[1 paragraph\]
 
@@ -93,6 +94,124 @@ Step 2: Measurement
 (Choose A or B or both).
 
 A: Use your hand coded data (you may need to hand code more training data) from step 1 to train a classifier to predict the categories you are interested in. Why did you choose the algorithm you did? \[1-2 paragraphs\] Use cross-validation to decide between variants of the models. Assess and report your out of sample precision and recall. \[1-2 paragraphs + table with precision and recall\]
+
+```{r}
+### Preprocessing dataset
+# Read in handcoding
+handcoding <- read_csv("handcoding.csv", show_col_types = FALSE)
+handcoding <- handcoding[-c(1:6), ] # drop rows
+
+# Rename columns for joining text from sotu df
+handcoding <- handcoding %>%
+rename(year = Year, president = President, sotu_type = "SOTU Type")
+
+# Standardize sotu year type (character)
+sotu <- sotu %>%
+mutate(year = as.character(year), president = as.character(president))
+
+# Join text to handcoding data
+handcoding <- handcoding %>%
+right_join(sotu, by = c("year", "president", "sotu_type")) %>%
+select(-Text)
+
+# Create labels
+handcoding$approval <- ifelse(handcoding$Approval_1==1 | handcoding$Approval_2==1, 1, 0)
+table(handcoding$approval)
+
+head(handcoding)
+```
+
+```{r}
+table(handcoding$approval)
+# Note: approval/disapproval is slightly imbalanced
+# This a binary label (approval = 1, neutral or disapproval = 0)
+```
+
+```{r}
+#Preprocess the data
+corpus_sotu <- corpus(handcoding, text_field = "text")
+corpus_sotu
+
+#Create a document feature matrix (dfm)
+#Some common pre-processing
+toks <- tokens(corpus_sotu, remove_punct = TRUE, remove_numbers=TRUE)
+toks <- tokens_wordstem(toks)
+toks <- tokens_select(toks,  stopwords("en"), selection = "remove")
+dfm <- dfm(toks)
+
+#Split into training, validation, and unlabeled data
+#Create an ID variable
+docvars(corpus_sotu, "id_numeric") <- 1:ndoc(corpus_sotu)
+#Unlabeled data
+unlabeled <- which(is.na(handcoding$approval))
+#Labeled data
+labeled <- which(!is.na(handcoding$approval))
+```
+
+
+```{r}
+#Sample training and validation set from the labeled data
+set.seed(1234)
+training <- sample(labeled, round(length(labeled)*.75))
+length(training)
+validation <- labeled[!labeled%in%training]
+length(validation)
+
+#Create separate dfm's for each
+dfmat_train <- dfm_subset(dfm, docvars(corpus_sotu, "id_numeric")%in%training)
+dfmat_val <- dfm_subset(dfm, docvars(corpus_sotu, "id_numeric")%in%validation)
+```
+
+
+```{r}
+#Naive Bayes
+#Train classifier
+tmod_nb <- textmodel_nb(dfmat_train, docvars(dfmat_train, "approval"))
+summary(tmod_nb)
+```
+```{r}
+#Words associated with approval
+sort(coef_nb[,2]/coef_nb[,1], decreasing=T)[1:20]
+```
+
+
+```{r}
+#Words not associated with non-approval
+sort(coef_nb[,2]/coef_nb[,1], decreasing=F)[1:20]
+```
+```{r}
+#How well does it do in sample? - on training data
+predict.train <- predict(tmod_nb, dfmat_train)
+tab_train <- table(docvars(dfmat_train, "approval"), predict.train)
+tab_train
+#precision
+diag(tab_train)/colSums(tab_train)
+#recall
+diag(tab_train)/rowSums(tab_train)
+```
+```{r}
+#How well does this prediction do out of sample?  Validation
+predict.val <- predict(tmod_nb, newdata = dfmat_val)
+tab_val <- table(docvars(dfmat_val, "approval"), predict.val)
+tab_val
+#precision
+diag(tab_val)/colSums(tab_val)
+#recall
+diag(tab_val)/rowSums(tab_val)
+
+# We probably need more handcoding for better model robustness
+```
+```{r}
+#Apply Naive Bayes to the whole dataset:
+handcoding$predict.approval <- as.numeric(as.character(predict(tmod_nb, newdata = dfm)))
+
+#Here is the prediction of approval for the whole corpus
+prop.table(table(handcoding$predict.approval))
+
+# If handcoding is representative of whole corpus,
+# We are underpredicting approval and overpredicting disapproval
+prop.table(table(handcoding$approval))
+```
 
 B: Use a large language model to predict the categories instead. What prompt did you choose and why? \[1-2 paragraphs\] Use your hand coded data to assess and report your out of sample precision and recall. \[1-2 paragraphs + table with precision and recall\]
 
