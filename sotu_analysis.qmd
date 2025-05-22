@@ -6,6 +6,12 @@ editor: visual
 
 ```{r}
 library(dplyr) 
+library(tidyverse)
+library(tokenizers)
+library(quanteda)
+library(quanteda.textmodels)
+library(caret)
+library(irr)
 ```
 
 # 1.
@@ -16,46 +22,62 @@ sotu <- read.csv("SOTU_WithText.csv")
 # filter from 1900s on 
 filtered_sotu <- filter(sotu, year >= 1900)
 
-set.seed(123123)
-sample_n(filtered_sotu, 2)
-
-```
-
-```{r}
-set.seed(12345)
-sample_n(filtered_sotu, 2)
 ```
 
 Select a corpus to study. Do some background reading on the corpus and decide on a research question that you can answer with the data that you have. What is your research question? What is the significance of your research question? Do a quick search -- has anyone studied this question before? (Please include at least 2 references) \[2-3 paragraphs\]
 
 # 2.
 
-Complete the steps below:
+-   For this project, we created 3 categories of sentiment in State of the Union speeches regarding public health care: approval, neutral, and disapproval. Our definitions are as follows:
 
-Step 1: Hand Coding
+    -   **Approval**: SOTU speech expressing satisfaction or belief in the value of a public health program or initiative. This can also take the form of having disapproval for private health initiatives (i.e. lack of support of the privatization of health care programs).
+    -   **Neutral**: SOTU speech that does not explicitly express support or disapproval of a public health program or initiative. This also includes speeches that do not explicitly/specifically reference public or private healthcare, or healthcare at all.
+    -   **Disapproval**: SOTU speech expressing dissatisfaction or highlighting shortcomings, failures, or barriers related to a public health initiative. This can also take the form of having approval for private health initiatives (i.e. support for the privatization of health care programs).
 
-```         
-- Take random sample of at least 50, code whether the document is for, against, or neutral.
-```
+    Additionally, we created a code book with these definitions to further clarify these categories. The code book also includes some keywords and example quotes from SOTU speeches for reference.
 
--   Define a categorization that would help you answer your research question. \[1-2 paragraphs\]
+| **Sentiment** | **Definition** | **Keywords** | **Example** |
+|--------------|------------------|-------------------|----------------------|
+| Approval | SOTU speech expressing satisfaction or belief in the value of a public health program or initiative. This can also take the form of having disapproval for private health initiatives (i.e. lack of support of the privatization of health care programs) | "support", "advocate", "commitment", "achieve", "improve", "success", "priority", "benefit", "impact", "significant progress", "solution", "progress", "invest", "improved health", "efforts have paid off" -- note: negation in conjunction with these words would be associated with disapproval | "Our Government has a responsibility to provide health care for the poor and the elderly, and we are meeting that responsibility. For all Americans, we must confront the rising cost of care, strengthen the doctor-patient relationship, and help people afford the insurance coverage they need." |
+| Neutral | SOTU speech that does not explicitly express support or disapproval of a public health program or initiative. This also includes speeches that do not explicitly/specifically reference public or private healthcare, or healthcare at all. | "address", "discuss", "work", "plan", "explore", "next steps", "looking forward", "consider" | "I see a new America as we celebrate our 200th anniversary 6 years from now. I see an America in which we have abolished hunger, provided the means for every family in the Nation to obtain a minimum income, made enormous progress in providing better housing, faster transportation, improved health, and superior education." |
+| Disapproval | SOTU speech expressing dissatisfaction or highlighting shortcomings, failures, or barriers related to a public health initiative. This can also take the form of having approval for private health initiatives (i.e. support for the privatization of health care programs) | "fail", "struggle", "insufficient", "lack", "decline", "not working", "unmet", "challenges", "shortcomings", "neglect", "ineffective", "difficult", "hurdle", "cut", "undermining", "deficient", etc. -- note: negation in conjunction with these words would be associated with approval | "In all we do, we must remember that the best health care decisions are not made by government and insurance companies but by patients and their doctors." |
 
-    -   public food assistance
-    -   education
-    -   public healthcare assistance
+After creating this code book, we selected a random sample of 50 documents from the SOTU corpus for hand coding. Two members of the group independently coded the 50 speeches according to the handbook and their interpretation of the text. The hand coded data was read back into R, and we computed confusion matrices and Krippendorff's alpha for all three categories to assess intercoder reliability.
 
-    Categories:
+-   
 
-    -   favor
-    -   not in favor
-    -   neutral
+    ```{r}
+    # random sample of 50
+    set.seed(54321)
+    random_50 <- sample_n(filtered_sotu, 50)
 
--   Create a detailed codebook. \[Include codebook\]
+    # read handcoded results back into R
+    handcode <- read.csv('handcoded.csv')
+    random_50$Disapproval_1 <- handcode$Disapproval_1
+    random_50$Neutral_1 <- handcode$Neutral_1
+    random_50$Approval_1 <- handcode$Approval_1
+    random_50$Disapproval_2 <- handcode$Disapproval_2
+    random_50$Neutral_2 <- handcode$Neutral_2
+    random_50$Approval_2 <- handcode$Approval_2
 
-    -   We need to figure out what metrics we are categorizing on:
-    -   sentiment words
+    # Disapproval Confusion Matrix
+    table(random_50$Disapproval_1, random_50$Disapproval_2)
+    # Krippendorff's alpha - 0.912
+    kripp.alpha(t(random_50[,c("Disapproval_1", "Disapproval_2")]))
 
--   Select a random sample from your data of at least 50 documents for hand coding. Have at least two people code the data, read the data back into R, and assess inter-coder reliability. \[1-2 paragraphs plus metrics on intercoder reliability\]
+    # Approval Confusion Matrix
+    table(random_50$Approval_1, random_50$Approval_2)
+    # Krippendorff's alpha - 0.735
+    kripp.alpha(t(random_50[,c("Approval_1", "Approval_2")]))
+
+    # Neutral Confusion Matrix
+    table(random_50$Neutral_1, random_50$Neutral_2)
+    # Krippendorff's alpha - 0.801 
+    kripp.alpha(t(random_50[,c("Neutral_1", "Neutral_2")]))
+
+    ```
+
+    We had the highest intercoder reliability in regards to the Disapproval category. Out of the 50 documents, our coders only conflicted on 1, with a Krippendorff's alpha or 0.912. Our coders agreed that 6 were Disapproval and 43 were not Disapproval. The second highest intercoder reliability was with the Neutral category. Out of the 50 documents, our coders conflicted on 5 documents. They agreed that 24 were Neutral, and 21 were not Neutral. The Krippendorff's alpha was 0.801.
 
 -   Where did you codes conflict? \[1 paragraph\]
 
