@@ -42,19 +42,7 @@ Select a corpus to study. Do some background reading on the corpus and decide on
 | Neutral | SOTU speech that does not explicitly express support or disapproval of a public health program or initiative. This also includes speeches that do not explicitly/specifically reference public or private healthcare, or healthcare at all. | "address", "discuss", "work", "plan", "explore", "next steps", "looking forward", "consider" | "I see a new America as we celebrate our 200th anniversary 6 years from now. I see an America in which we have abolished hunger, provided the means for every family in the Nation to obtain a minimum income, made enormous progress in providing better housing, faster transportation, improved health, and superior education." |
 | Disapproval | SOTU speech expressing dissatisfaction or highlighting shortcomings, failures, or barriers related to a public health initiative. This can also take the form of having approval for private health initiatives (i.e. support for the privatization of health care programs) | "fail", "struggle", "insufficient", "lack", "decline", "not working", "unmet", "challenges", "shortcomings", "neglect", "ineffective", "difficult", "hurdle", "cut", "undermining", "deficient", etc. -- note: negation in conjunction with these words would be associated with approval | "In all we do, we must remember that the best health care decisions are not made by government and insurance companies but by patients and their doctors." |
 
-After creating this code book, we selected a random sample of 50 documents from the SOTU corpus for hand coding. Out of the 50 speeches, 29 of these speeches were from Republicans, and the speeches ranged from 1905 to 2013. Using this sample, two members of the group independently coded the 50 speeches according to the handbook and their interpretation of the text. The hand coded data was read back into R, and we computed confusion matrices and Krippendorff's alpha for all three categories to assess intercoder reliability.
-
--   sampled_df\$Disapproval_1 \<- handcode\$Disapproval_1
-
-    sampled_df\$Neutral_1 \<- handcode\$Neutral_1
-
-    sampled_df\$Approval_1 \<- handcode\$Approval_1
-
-    sampled_df\$Disapproval_2 \<- handcode\$Disapproval_2
-
-    sampled_df\$Neutral_2 \<- handcode\$Neutral_2
-
-    sampled_df\$Approval_2 \<- handcode\$Approval_2
+After creating this code book, we selected a random sample of 80 documents from the SOTU corpus for hand coding. Out of the 80 speeches, half of these speeches were from Republicans and half were from Democrats; the speeches ranged from 1905 to 2013. Using this sample, two members of the group independently coded the 80 speeches according to the handbook and their interpretation of the text. The hand coded data was read back into R, and we computed confusion matrices and Krippendorff's alpha for all three categories to assess intercoder reliability.
 
 -   
 
@@ -101,7 +89,7 @@ After creating this code book, we selected a random sample of 50 documents from 
 
     ```
 
-We had the highest intercoder reliability in regards to the Disapproval category. Out of the 50 documents, our coders only conflicted on 1, with a Krippendorff's alpha or 0.912. Our coders agreed that 6 were Disapproval and 43 were not Disapproval. The second highest intercoder reliability was with the Neutral category. Out of the 50 documents, our coders conflicted on 5 documents. They agreed that 24 were Neutral, and 21 were not Neutral. The Krippendorff's alpha was 0.801.
+We had the highest intercoder reliability in regards to the Netural category, with a Krippendorff's alpha of 0.876. The second highest intercoder reliability was with the Dissapproval category, with a Krippendorff's alpha of 0.862. Our lowest intercoder reliability was with the Approval category, which had a Krippendorff's alpha of 0.82. From these metrics, it seems that our codebook captures and defines Disapproval and Neutral sentiments towards of public health care relatively well; however, there is some ambiguity in the codebook with regards to Approval sentiments.
 
 -   Where did you codes conflict? \[1 paragraph\]
 
