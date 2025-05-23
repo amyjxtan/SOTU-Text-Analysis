@@ -44,6 +44,18 @@ Select a corpus to study. Do some background reading on the corpus and decide on
 
 After creating this code book, we selected a random sample of 50 documents from the SOTU corpus for hand coding. Out of the 50 speeches, 29 of these speeches were from Republicans, and the speeches ranged from 1905 to 2013. Using this sample, two members of the group independently coded the 50 speeches according to the handbook and their interpretation of the text. The hand coded data was read back into R, and we computed confusion matrices and Krippendorff's alpha for all three categories to assess intercoder reliability.
 
+-   sampled_df\$Disapproval_1 \<- handcode\$Disapproval_1
+
+    sampled_df\$Neutral_1 \<- handcode\$Neutral_1
+
+    sampled_df\$Approval_1 \<- handcode\$Approval_1
+
+    sampled_df\$Disapproval_2 \<- handcode\$Disapproval_2
+
+    sampled_df\$Neutral_2 \<- handcode\$Neutral_2
+
+    sampled_df\$Approval_2 \<- handcode\$Approval_2
+
 -   
 
     ```{r}
@@ -56,32 +68,36 @@ After creating this code book, we selected a random sample of 50 documents from 
       anti_join(random_50) %>%
       sample_n(30)
 
+    # concatenate the two samples together
+    sampled_df <- rbind(random_50, random_30)
+
     # get num of Republican speeches in the sample
-    rep <- filter(random_50, party == 'Republican')
+    rep <- filter(sampled_df, party == 'Republican')
 
     # read handcoded results back into R
     handcode <- read.csv('handcoded.csv')
-    random_50$Disapproval_1 <- handcode$Disapproval_1
-    random_50$Neutral_1 <- handcode$Neutral_1
-    random_50$Approval_1 <- handcode$Approval_1
-    random_50$Disapproval_2 <- handcode$Disapproval_2
-    random_50$Neutral_2 <- handcode$Neutral_2
-    random_50$Approval_2 <- handcode$Approval_2
+
+    sampled_df$Disapproval_1 <- handcode$Disapproval_1
+    sampled_df$Neutral_1 <- handcode$Neutral_1
+    sampled_df$Approval_1 <- handcode$Approval_1
+    sampled_df$Disapproval_2 <- handcode$Disapproval_2
+    sampled_df$Neutral_2 <- handcode$Neutral_2
+    sampled_df$Approval_2 <- handcode$Approval_2
 
     # Disapproval Confusion Matrix
-    table(random_50$Disapproval_1, random_50$Disapproval_2)
-    # Krippendorff's alpha - 0.912
-    kripp.alpha(t(random_50[,c("Disapproval_1", "Disapproval_2")]))
+    table(sampled_df$Disapproval_1, sampled_df$Disapproval_2)
+    # Krippendorff's alpha - 0.862 
+    kripp.alpha(t(sampled_df[,c("Disapproval_1", "Disapproval_2")]))
 
     # Approval Confusion Matrix
-    table(random_50$Approval_1, random_50$Approval_2)
-    # Krippendorff's alpha - 0.735
-    kripp.alpha(t(random_50[,c("Approval_1", "Approval_2")]))
+    table(sampled_df$Approval_1, sampled_df$Approval_2)
+    # Krippendorff's alpha - 0.82 
+    kripp.alpha(t(sampled_df[,c("Approval_1", "Approval_2")]))
 
     # Neutral Confusion Matrix
-    table(random_50$Neutral_1, random_50$Neutral_2)
-    # Krippendorff's alpha - 0.801 
-    kripp.alpha(t(random_50[,c("Neutral_1", "Neutral_2")]))
+    table(sampled_df$Neutral_1, sampled_df$Neutral_2)
+    # Krippendorff's alpha - 0.876 
+    kripp.alpha(t(sampled_df[,c("Neutral_1", "Neutral_2")]))
 
     ```
 
