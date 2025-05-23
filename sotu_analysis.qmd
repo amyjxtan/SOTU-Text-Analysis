@@ -37,7 +37,7 @@ Select a corpus to study. Do some background reading on the corpus and decide on
     Additionally, we created a code book with these definitions to further clarify these categories. The code book also includes some keywords and example quotes from SOTU speeches for reference.
 
 | **Sentiment** | **Definition** | **Keywords** | **Example** |
-|------------------|------------------|------------------|--------------------|
+|------------------|------------------|------------------|-------------------|
 | Approval | SOTU speech expressing satisfaction or belief in the value of a public health program or initiative. This can also take the form of having disapproval for private health initiatives (i.e. lack of support of the privatization of health care programs) | "support", "advocate", "commitment", "achieve", "improve", "success", "priority", "benefit", "impact", "significant progress", "solution", "progress", "invest", "improved health", "efforts have paid off" -- note: negation in conjunction with these words would be associated with disapproval | "Our Government has a responsibility to provide health care for the poor and the elderly, and we are meeting that responsibility. For all Americans, we must confront the rising cost of care, strengthen the doctor-patient relationship, and help people afford the insurance coverage they need." |
 | Neutral | SOTU speech that does not explicitly express support or disapproval of a public health program or initiative. This also includes speeches that do not explicitly/specifically reference public or private healthcare, or healthcare at all. | "address", "discuss", "work", "plan", "explore", "next steps", "looking forward", "consider" | "I see a new America as we celebrate our 200th anniversary 6 years from now. I see an America in which we have abolished hunger, provided the means for every family in the Nation to obtain a minimum income, made enormous progress in providing better housing, faster transportation, improved health, and superior education." |
 | Disapproval | SOTU speech expressing dissatisfaction or highlighting shortcomings, failures, or barriers related to a public health initiative. This can also take the form of having approval for private health initiatives (i.e. support for the privatization of health care programs) | "fail", "struggle", "insufficient", "lack", "decline", "not working", "unmet", "challenges", "shortcomings", "neglect", "ineffective", "difficult", "hurdle", "cut", "undermining", "deficient", etc. -- note: negation in conjunction with these words would be associated with approval | "In all we do, we must remember that the best health care decisions are not made by government and insurance companies but by patients and their doctors." |
@@ -51,8 +51,13 @@ After creating this code book, we selected a random sample of 50 documents from 
     set.seed(54321)
     random_50 <- sample_n(filtered_sotu, 50)
 
+    # taking another sample of 30
+    random_30 <- filtered_sotu %>%
+      anti_join(random_50) %>%
+      sample_n(30)
+
     # get num of Republican speeches in the sample
-        rep <- filter(random_50, party == 'Republican')
+    rep <- filter(random_50, party == 'Republican')
 
     # read handcoded results back into R
     handcode <- read.csv('handcoded.csv')
@@ -79,7 +84,6 @@ After creating this code book, we selected a random sample of 50 documents from 
     kripp.alpha(t(random_50[,c("Neutral_1", "Neutral_2")]))
 
     ```
-
 
 We had the highest intercoder reliability in regards to the Disapproval category. Out of the 50 documents, our coders only conflicted on 1, with a Krippendorff's alpha or 0.912. Our coders agreed that 6 were Disapproval and 43 were not Disapproval. The second highest intercoder reliability was with the Neutral category. Out of the 50 documents, our coders conflicted on 5 documents. They agreed that 24 were Neutral, and 21 were not Neutral. The Krippendorff's alpha was 0.801.
 
@@ -148,7 +152,6 @@ unlabeled <- which(is.na(handcoding$approval))
 labeled <- which(!is.na(handcoding$approval))
 ```
 
-
 ```{r}
 #Sample training and validation set from the labeled data
 set.seed(1234)
@@ -162,23 +165,23 @@ dfmat_train <- dfm_subset(dfm, docvars(corpus_sotu, "id_numeric")%in%training)
 dfmat_val <- dfm_subset(dfm, docvars(corpus_sotu, "id_numeric")%in%validation)
 ```
 
-
 ```{r}
 #Naive Bayes
 #Train classifier
 tmod_nb <- textmodel_nb(dfmat_train, docvars(dfmat_train, "approval"))
 summary(tmod_nb)
 ```
+
 ```{r}
 #Words associated with approval
 sort(coef_nb[,2]/coef_nb[,1], decreasing=T)[1:20]
 ```
 
-
 ```{r}
 #Words not associated with non-approval
 sort(coef_nb[,2]/coef_nb[,1], decreasing=F)[1:20]
 ```
+
 ```{r}
 #How well does it do in sample? - on training data
 predict.train <- predict(tmod_nb, dfmat_train)
@@ -189,6 +192,7 @@ diag(tab_train)/colSums(tab_train)
 #recall
 diag(tab_train)/rowSums(tab_train)
 ```
+
 ```{r}
 #How well does this prediction do out of sample?  Validation
 predict.val <- predict(tmod_nb, newdata = dfmat_val)
@@ -201,6 +205,7 @@ diag(tab_val)/rowSums(tab_val)
 
 # We probably need more handcoding for better model robustness
 ```
+
 ```{r}
 #Apply Naive Bayes to the whole dataset:
 handcoding$predict.approval <- as.numeric(as.character(predict(tmod_nb, newdata = dfm)))
