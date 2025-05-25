@@ -93,9 +93,11 @@ We had the highest intercoder reliability in regards to the Netural category, wi
 
 -   Where did you codes conflict? \[1 paragraph\]
 
-Across all three categories, our codes conflict the most in the Approval category, where we disagree on the coding of 6 out of 50 documents. This means that we disagreed the most on identifying speeches that were in approval of public healthcare. The category with the second most handcoding conflicts is the Neutral category, in which we disagreed on 5 of 50 documents. Finally, the category with the least handcoding conflicts is the Disapproval category, where we only disagreed on 1 of 50 documents.
+Across all three categories, our codes conflict the most in the Approval category, where we disagree on the coding of 7 out of 80 documents. For the Neutral category, we had 5 conflicts, where we differed on whether the speech should be coded as “Approval” or “Neutral.” This suggests that handcoding conflicts were more common when the speaker’s stance on public healthcare was ambiguous or nuanced, making it challenging to classify. Finally, the Disapproval category had the fewest conflicts, with disagreements on only 2 of 80 documents. This could indicate that disapproval is usually expressed in a clearer and more definitive manner, leaving less room for ambiguity in coding.
 
 -   How would you revise your codebook based on these conflicts? \[1-2 paragraphs\]
+
+Based on these conflicts, I would revise the definitions of each category to be clearer and more specific, especially the Approval and Neutral categories, since most of the disagreements derived from differentiating them. This could include adding decision rules regarding how to handle boundary cases in which the speaker might express tentative levels of support, or support while also encouraging caution. Further, the codebook can also be improved by providing examples of what counts as a public healthcare initiative. For example, we could clarify whether the definition should be limited to strictly government-funded healthcare programs or broadened to include any form of government influence in healthcare.
 
 Step 2: Measurement
 
