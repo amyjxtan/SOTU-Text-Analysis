@@ -107,39 +107,22 @@ A: Use your hand coded data (you may need to hand code more training data) from 
 
 ```{r}
 ### Preprocessing dataset
-# Read in handcoding
-handcoding <- read_csv("handcoding.csv", show_col_types = FALSE)
-handcoding <- handcoding[-c(1:6), ] # drop rows
-
-# Rename columns for joining text from sotu df
-handcoding <- handcoding %>%
-rename(year = Year, president = President, sotu_type = "SOTU Type")
-
-# Standardize sotu year type (character)
-sotu <- sotu %>%
-mutate(year = as.character(year), president = as.character(president))
-
-# Join text to handcoding data
-handcoding <- handcoding %>%
-right_join(sotu, by = c("year", "president", "sotu_type")) %>%
-select(-Text)
-
 # Create labels
-handcoding$approval <- ifelse(handcoding$Approval_1==1 | handcoding$Approval_2==1, 1, 0)
-table(handcoding$approval)
+sampled_df$approval <- ifelse(sampled_df$Approval_1==1 | sampled_df$Approval_2==1, 1, 0)
+table(sampled_df$approval)
 
-head(handcoding)
+head(sampled_df)
 ```
 
 ```{r}
-table(handcoding$approval)
+table(sampled_df$approval)
 # Note: approval/disapproval is slightly imbalanced
 # This a binary label (approval = 1, neutral or disapproval = 0)
 ```
 
 ```{r}
 #Preprocess the data
-corpus_sotu <- corpus(handcoding, text_field = "text")
+corpus_sotu <- corpus(sampled_df, text_field = "text")
 corpus_sotu
 
 #Create a document feature matrix (dfm)
@@ -153,9 +136,9 @@ dfm <- dfm(toks)
 #Create an ID variable
 docvars(corpus_sotu, "id_numeric") <- 1:ndoc(corpus_sotu)
 #Unlabeled data
-unlabeled <- which(is.na(handcoding$approval))
+unlabeled <- which(is.na(sampled_df$approval))
 #Labeled data
-labeled <- which(!is.na(handcoding$approval))
+labeled <- which(!is.na(sampled_df$approval))
 ```
 
 ```{r}
@@ -175,7 +158,6 @@ dfmat_val <- dfm_subset(dfm, docvars(corpus_sotu, "id_numeric")%in%validation)
 #Naive Bayes
 #Train classifier
 tmod_nb <- textmodel_nb(dfmat_train, docvars(dfmat_train, "approval"))
-summary(tmod_nb)
 ```
 
 ```{r}
@@ -193,6 +175,7 @@ sort(coef_nb[,2]/coef_nb[,1], decreasing=F)[1:20]
 predict.train <- predict(tmod_nb, dfmat_train)
 tab_train <- table(docvars(dfmat_train, "approval"), predict.train)
 tab_train
+
 #precision
 diag(tab_train)/colSums(tab_train)
 #recall
@@ -214,14 +197,14 @@ diag(tab_val)/rowSums(tab_val)
 
 ```{r}
 #Apply Naive Bayes to the whole dataset:
-handcoding$predict.approval <- as.numeric(as.character(predict(tmod_nb, newdata = dfm)))
+sampled_df$predict.approval <- as.numeric(as.character(predict(tmod_nb, newdata = dfm)))
 
 #Here is the prediction of approval for the whole corpus
-prop.table(table(handcoding$predict.approval))
+prop.table(table(sampled_df$predict.approval))
 
 # If handcoding is representative of whole corpus,
-# We are underpredicting approval and overpredicting disapproval
-prop.table(table(handcoding$approval))
+# Slightly underpredicting non-approval, slightly overpredicting approval
+prop.table(table(sampled_df$approval))
 ```
 
 B: Use a large language model to predict the categories instead. What prompt did you choose and why? \[1-2 paragraphs\] Use your hand coded data to assess and report your out of sample precision and recall. \[1-2 paragraphs + table with precision and recall\]
