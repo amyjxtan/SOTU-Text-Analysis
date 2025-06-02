@@ -30,6 +30,8 @@ The State of the Union Address (SOTU) is a communication from the President to C
 
 Are there systematic differences in how Democratic and Republican presidents frame public health issues in terms of sentiment (approval vs. neutral vs. disapproval) in State of the Union Addresses?
 
+Doing a quick search, we were unable to find any articles or literature that address our same question; however, there are related works that address different aspects of the research question. For example, an article titled "Health Features Prominently in the State of the Union Address" by Terri Rutter briefly discusses President Clinton's 1998 State of the Union Address, and his discourse and sentiment surrounding public health and healthcare (Rutter). Further, another article by Ryan L. Teten titled "Evolution of the Modern Rhetorical Presidency: Presidential Presentation and Development of the State of the Union Address" discusses in more detail how the sentiment in State of the Union addresses have developed over time, but doesn't compare differences in sentiment between political parties (Teten).
+
 For this project, we created 3 categories of sentiment in State of the Union speeches regarding public health care: approval, neutral, and disapproval. Our definitions are as follows:
 
 ```         
@@ -41,7 +43,7 @@ Additionally, we created a code book with these definitions to further clarify t
 ```
 
 | **Sentiment** | **Definition** | **Keywords** | **Example** |
-|------------------|------------------|------------------|--------------------|
+|------------------|------------------|------------------|-------------------|
 | Approval | SOTU speech expressing satisfaction or belief in the value of a public health program or initiative. This can also take the form of having disapproval for private health initiatives (i.e. lack of support of the privatization of health care programs) | "support", "advocate", "commitment", "achieve", "improve", "success", "priority", "benefit", "impact", "significant progress", "solution", "progress", "invest", "improved health", "efforts have paid off" -- note: negation in conjunction with these words would be associated with disapproval | "Our Government has a responsibility to provide health care for the poor and the elderly, and we are meeting that responsibility. For all Americans, we must confront the rising cost of care, strengthen the doctor-patient relationship, and help people afford the insurance coverage they need." |
 | Neutral | SOTU speech that does not explicitly express support or disapproval of a public health program or initiative. This also includes speeches that do not explicitly/specifically reference public or private healthcare, or healthcare at all. | "address", "discuss", "work", "plan", "explore", "next steps", "looking forward", "consider" | "I see a new America as we celebrate our 200th anniversary 6 years from now. I see an America in which we have abolished hunger, provided the means for every family in the Nation to obtain a minimum income, made enormous progress in providing better housing, faster transportation, improved health, and superior education." |
 | Disapproval | SOTU speech expressing dissatisfaction or highlighting shortcomings, failures, or barriers related to a public health initiative. This can also take the form of having approval for private health initiatives (i.e. support for the privatization of health care programs) | "fail", "struggle", "insufficient", "lack", "decline", "not working", "unmet", "challenges", "shortcomings", "neglect", "ineffective", "difficult", "hurdle", "cut", "undermining", "deficient", etc. -- note: negation in conjunction with these words would be associated with approval | "In all we do, we must remember that the best health care decisions are not made by government and insurance companies but by patients and their doctors." |
@@ -234,3 +236,7 @@ Apply either A or B to the whole corpus. Use the measure to answer your research
 Copeland, L. (2025, May 22). *House passes bill that would devastate health coverage for millions in Medicaid and Medicare*. Medicare Rights Center. https://www.medicarerights.org/medicare-watch/2025/05/22/house-passes-bill-that-would-devastate-health-coverage-for-millions-in-medicaid-and-medicare
 
 *History, Evolution, and Practices of the President’s State of the Union Address: Frequently asked questions*. (n.d.). Congress.Gov \| Library of Congress. https://www.congress.gov/crs-product/R44770
+
+Rutter, T. (1998). Health Features Prominently in the State of the Union Address. *BMJ: British Medical Journal*, *316*(7129), 415–415. http://www.jstor.org/stable/25176997
+
+Teten, R. L. (2003). Evolution of the Modern Rhetorical Presidency: Presidential Presentation and Development of the State of the Union Address. *Presidential Studies Quarterly*, *33*(2), 333–346. http://www.jstor.org/stable/27552488
