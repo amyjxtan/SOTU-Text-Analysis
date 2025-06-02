@@ -37,7 +37,7 @@ Select a corpus to study. Do some background reading on the corpus and decide on
     Additionally, we created a code book with these definitions to further clarify these categories. The code book also includes some keywords and example quotes from SOTU speeches for reference.
 
 | **Sentiment** | **Definition** | **Keywords** | **Example** |
-|----|----|----|----|
+|-----------------|-----------------|-----------------|---------------------|
 | Approval | SOTU speech expressing satisfaction or belief in the value of a public health program or initiative. This can also take the form of having disapproval for private health initiatives (i.e. lack of support of the privatization of health care programs) | "support", "advocate", "commitment", "achieve", "improve", "success", "priority", "benefit", "impact", "significant progress", "solution", "progress", "invest", "improved health", "efforts have paid off" -- note: negation in conjunction with these words would be associated with disapproval | "Our Government has a responsibility to provide health care for the poor and the elderly, and we are meeting that responsibility. For all Americans, we must confront the rising cost of care, strengthen the doctor-patient relationship, and help people afford the insurance coverage they need." |
 | Neutral | SOTU speech that does not explicitly express support or disapproval of a public health program or initiative. This also includes speeches that do not explicitly/specifically reference public or private healthcare, or healthcare at all. | "address", "discuss", "work", "plan", "explore", "next steps", "looking forward", "consider" | "I see a new America as we celebrate our 200th anniversary 6 years from now. I see an America in which we have abolished hunger, provided the means for every family in the Nation to obtain a minimum income, made enormous progress in providing better housing, faster transportation, improved health, and superior education." |
 | Disapproval | SOTU speech expressing dissatisfaction or highlighting shortcomings, failures, or barriers related to a public health initiative. This can also take the form of having approval for private health initiatives (i.e. support for the privatization of health care programs) | "fail", "struggle", "insufficient", "lack", "decline", "not working", "unmet", "challenges", "shortcomings", "neglect", "ineffective", "difficult", "hurdle", "cut", "undermining", "deficient", etc. -- note: negation in conjunction with these words would be associated with approval | "In all we do, we must remember that the best health care decisions are not made by government and insurance companies but by patients and their doctors." |
@@ -97,11 +97,9 @@ Across all three categories, our codes conflict the most in the Approval categor
 
 -   How would you revise your codebook based on these conflicts? \[1-2 paragraphs\]
 
-Based on these conflicts, I would revise the definitions of each category to be clearer and more specific, especially the Approval and Neutral categories, since most of the disagreements derived from differentiating them. This could include adding decision rules regarding how to handle boundary cases in which the speaker might express tentative levels of support, or support while also encouraging caution. Further, the codebook can also be improved by providing examples of what counts as a public healthcare initiative. For example, we could clarify whether the definition should be limited to strictly government-funded healthcare programs or broadened to include any form of government influence in healthcare.
+Based on these conflicts, we would revise the definitions of each category to be clearer and more specific, especially the Approval and Neutral categories, since most of the disagreements derived from differentiating them. This could include adding decision rules regarding how to handle boundary cases in which the speaker might express tentative levels of support, or support while also encouraging caution. Further, the codebook can also be improved by providing examples of what counts as a public healthcare initiative. For example, we could clarify whether the definition should be limited to strictly government-funded healthcare programs or broadened to include any form of government influence in healthcare.
 
-Step 2: Measurement
-
-(Choose A or B or both).
+## Measurement
 
 A: Use your hand coded data (you may need to hand code more training data) from step 1 to train a classifier to predict the categories you are interested in. Why did you choose the algorithm you did? \[1-2 paragraphs\] Use cross-validation to decide between variants of the models. Assess and report your out of sample precision and recall. \[1-2 paragraphs + table with precision and recall\]
 
@@ -161,6 +159,7 @@ dfmat_val <- dfm_subset(dfm, docvars(corpus_sotu, "id_numeric")%in%validation)
 #Naive Bayes
 #Train classifier
 tmod_nb <- textmodel_nb(dfmat_train, docvars(dfmat_train, "approval"))
+coef_nb <- coef(tmod_nb)
 ```
 
 ```{r}
@@ -196,6 +195,22 @@ diag(tab_val)/colSums(tab_val)
 diag(tab_val)/rowSums(tab_val)
 ```
 
+In regards to **in-sample** precision and recall, the Naive Bayes model does relatively well:
+
+|           | 0 (neutral/disapproval) | 1 (approval) |
+|-----------|-------------------------|--------------|
+| precision | 0.912                   | 0.962        |
+| recall    | 0.969                   | 0.893        |
+
+However, it is more important to evaluate the Naive Bayes performance based on **out of sample** metrics.
+
+|           | 0 (neutral/disapproval) | 1 (approval) |
+|-----------|-------------------------|--------------|
+| precision | 0.625                   | 0.417        |
+| recall    | 0.417                   | 0.625        |
+
+Based on these metrics, the Naive Bayes doesn't do extremely well. Based on the precision values, we can conclude that, of all predictions of neutral or disapproving sentiment towards public health care (0), 5 of the 8 were correct (0.625). Likewise, of all predictions of approving sentiment towards public health care (1), 5 of the 12 were correct (0.417). In regards to the recall values, we conclude that, of all actual handcoded examples of neutral/disapproving sentiment towards public health care, the model only predicted a proportion of 0.417 correctly. For all actual handcoded examples of approving sentiment, the model only predicted a proportion of 0.625 correctly. In short, our model is predicting neutral/disapproval more conservatively, yet more accurately, while predicting approval more often, with lower accuracy. The model overall has a relatively weak performance with none of the classes yielding thresholds above 0.70. Other classifier methods could be tested out of sample and compared to see if they yield better results.
+
 ```{r}
 #Apply Naive Bayes to the whole dataset:
 sampled_df$predict.approval <- as.numeric(as.character(predict(tmod_nb, newdata = dfm)))
@@ -207,8 +222,6 @@ prop.table(table(sampled_df$predict.approval))
 # Slightly underpredicting non-approval, slightly overpredicting approval
 prop.table(table(sampled_df$approval))
 ```
-
-B: Use a large language model to predict the categories instead. What prompt did you choose and why? \[1-2 paragraphs\] Use your hand coded data to assess and report your out of sample precision and recall. \[1-2 paragraphs + table with precision and recall\]
 
 Apply either A or B to the whole corpus. Use the measure to answer your research question. \[1-2 paragraphs plus plot\] What do you learn? \[1-2 paragraphs\] What are some of the limitations of this approach? \[1-2 paragraphs\]
 
