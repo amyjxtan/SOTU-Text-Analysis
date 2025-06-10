@@ -245,7 +245,7 @@ sum(filtered_sotu$predicted_sentiment == 1)
 ```
 
 ```{r}
-# Step 2: Count and compute proportions
+# Count and compute proportions
 plot_data <- filtered_sotu %>%
   mutate(predicted_sentiment = as.factor(predicted_sentiment)) %>%
   group_by(party, predicted_sentiment) %>%
@@ -253,13 +253,13 @@ plot_data <- filtered_sotu %>%
   group_by(party) %>%
   mutate(percentage = count / sum(count))
 
-# Step 3: Plot percent stacked bar chart
+# Plot percent stacked bar chart
 ggplot(plot_data, aes(x = party, y = percentage, fill = predicted_sentiment)) +
   geom_bar(stat = "identity", position = "fill") +
   scale_y_continuous(labels = scales::percent_format()) + scale_fill_manual(
-    values = c("0" = "#ff5a5a",  # Blue
-               "1" = "#77b255")  # Red
-  )  # or "Paired", "Dark2", "Pastel1", etc.
+    values = c("0" = "#ff5a5a",  
+               "1" = "#77b255")  
+  )  
   labs(
     title = "Predicted Sentiment by Political Party",
     x = "Political Party",
