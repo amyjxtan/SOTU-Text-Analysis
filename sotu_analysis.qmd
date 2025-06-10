@@ -119,7 +119,7 @@ To train the Naive Bayes classifier, we first created a binary variable called `
 sampled_df$approval <- ifelse(sampled_df$Approval_1==1 | sampled_df$Approval_2==1, 1, 0)
 table(sampled_df$approval)
 
-head(sampled_df)
+#head(sampled_df)
 ```
 
 ```{r}
@@ -169,16 +169,6 @@ coef_nb <- coef(tmod_nb)
 ```
 
 ```{r}
-#Words associated with approval
-sort(coef_nb[,2]/coef_nb[,1], decreasing=T)[1:20]
-```
-
-```{r}
-#Words not associated with non-approval
-sort(coef_nb[,2]/coef_nb[,1], decreasing=F)[1:20]
-```
-
-```{r}
 #How well does it do in sample? - on training data
 predict.train <- predict(tmod_nb, dfmat_train)
 tab_train <- table(docvars(dfmat_train, "approval"), predict.train)
@@ -218,7 +208,7 @@ However, it is more important to evaluate the Naive Bayes performance based on *
 Based on these metrics, the Naive Bayes doesn't do extremely well. Based on the precision values, we can conclude that, of all predictions of neutral or disapproving sentiment towards public health care (0), 5 of the 8 were correct (0.625). Likewise, of all predictions of approving sentiment towards public health care (1), 5 of the 12 were correct (0.417). In regards to the recall values, we conclude that, of all actual handcoded examples of neutral/disapproving sentiment towards public health care, the model only predicted a proportion of 0.417 correctly. For all actual handcoded examples of approving sentiment, the model only predicted a proportion of 0.625 correctly. In short, our model is predicting neutral/disapproval more conservatively, yet more accurately, while predicting approval more often, with lower accuracy. The model overall has a relatively weak performance with none of the classes yielding thresholds above 0.70. Other classifier methods could be tested out of sample and compared to see if they yield better results.
 
 ```{r}
-#Apply Naive Bayes to the whole dataset:
+#Apply Naive Bayes to the handcoded data:
 sampled_df$predict.approval <- as.numeric(as.character(predict(tmod_nb, newdata = dfm)))
 
 #Here is the prediction of approval for the whole corpus
@@ -230,6 +220,72 @@ prop.table(table(sampled_df$approval))
 ```
 
 Apply either A or B to the whole corpus. Use the measure to answer your research question. \[1-2 paragraphs plus plot\] What do you learn? \[1-2 paragraphs\] What are some of the limitations of this approach? \[1-2 paragraphs\]
+
+```{r}
+#Preprocess the data
+corpus_sotu_all <- corpus(filtered_sotu, text_field = "text")
+
+#Create a document feature matrix (dfm)
+#Some common pre-processing
+toks_all <- tokens(corpus_sotu_all, remove_punct = TRUE, remove_numbers=TRUE)
+toks_all <- tokens_wordstem(toks_all)
+toks_all <- tokens_select(toks_all,  stopwords("en"), selection = "remove")
+dfm_all <- dfm(toks_all)
+
+# Match features in new DFM to the ones used in training
+dfm_all_matched <- dfm_match(dfm_all, features = featnames(tmod_nb))
+
+# Make predictions
+predictions <- predict(tmod_nb, newdata = dfm_all_matched)
+
+# Attach predictions to original data
+filtered_sotu$predicted_sentiment <- predictions
+
+sum(filtered_sotu$predicted_sentiment == 1)
+```
+
+```{r}
+# Step 2: Count and compute proportions
+plot_data <- filtered_sotu %>%
+  mutate(predicted_sentiment = as.factor(predicted_sentiment)) %>%
+  group_by(party, predicted_sentiment) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(party) %>%
+  mutate(percentage = count / sum(count))
+
+# Step 3: Plot percent stacked bar chart
+ggplot(plot_data, aes(x = party, y = percentage, fill = predicted_sentiment)) +
+  geom_bar(stat = "identity", position = "fill") +
+  scale_y_continuous(labels = scales::percent_format()) + scale_fill_manual(
+    values = c("0" = "#ff5a5a",  # Blue
+               "1" = "#77b255")  # Red
+  )  # or "Paired", "Dark2", "Pastel1", etc.
+  labs(
+    title = "Predicted Sentiment by Political Party",
+    x = "Political Party",
+    y = "Percentage of Speeches",
+    fill = "Predicted Sentiment"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+plot_data
+```
+
+```{}
+```
+
+```{r}
+# Count how many Democratic speeches
+sum(filtered_sotu$party == "Democratic")
+
+# Count how many Republican speeches
+sum(filtered_sotu$party == "Republican")
+
+# Two-proportion z-test
+prop.test(c(37,25), c(61,64), correct = FALSE)
+```
 
 Our group chose to apply approach A, which is to train a Naive Bayes classifier model on our hand-coded data, on a set of 80 randomly sampled State of the Union address data spanning from 1903 to 2013. We aimed to answer the question: "Are there systematic differences in how Democratic and Republican presidents frame public health issues in terms of sentiment (approval vs. neutral vs. disapproval) in State of the Union Addresses?". Based on our classifier model, we can say that there likely are differences in how Democratic and Republican presidents have addressed healthcare in their SOTU addresses, but there is a need for future work due to the fact that our classifier did not have strong prediction accuracy. Although the classifier demonstrated limited overall accuracy, it still identified patterns in the text that aligned with our hand-coded labels.
 
